@@ -1,9 +1,12 @@
+import Mongo from "../mongodb/Mongo";
+
 /**
  * Logging utility
  */
 export default class Logger{
     private static __self:Logger;
-    private __enabledLoggingOptions: LoggingOptions[]
+    private __enabledLoggingOptions: LoggingOptions[];
+    private __consoleLoggingEnabled:boolean;
     private static Instance():Logger{
         if(Logger.__self == null){
             Logger.__self = new Logger();
@@ -26,10 +29,23 @@ export default class Logger{
         Logger.Instance().writeMessage(log, "PERFORMANCE");
     }
     private constructor(){
-        this.__enabledLoggingOptions =  ["ERROR", "WARNING", "DEBUG", "INFO", "PERFORMANCE"]; //process.env.LOGGING_TYPE as LoggingOptions ||
+        const consoleLogging = process.env.CONSOLE_LOGGING as ConsoleLogging;
+        const loggingTypes:LoggingOptions[] = process.env.LOGGING_TYPE?.split(";") as LoggingOptions[] || [];
+        this.__enabledLoggingOptions =  loggingTypes;
+        this.__consoleLoggingEnabled = consoleLogging === "ENABLED" || false;
     }
     writeMessage(log: LogMessage, type: LoggingOptions){
         if(this.__enabledLoggingOptions.includes(type)) {
+            Mongo.insert({
+                collection: "logger",
+                record: {
+                  type,
+                  date: new Date().toUTCString(),
+                  log
+                }
+              });
+        }
+        if(this.__consoleLoggingEnabled){
             console.log([type, new Date()] ,log.message);
         }
     }
@@ -42,3 +58,4 @@ export interface LogMessage {
 }
 
 type LoggingOptions =  "ERROR"| "WARNING" | "DEBUG" | "INFO" | "PERFORMANCE";
+type ConsoleLogging = "ENABLED" | "DISABLED"
