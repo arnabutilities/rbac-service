@@ -1,6 +1,7 @@
 // src/index.js
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
+import Logger from "./modules/logger/Logger";
 
 dotenv.config();
 
@@ -12,5 +13,5 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+  Logger.Info({message: `[server]: Server is running at http://localhost:${port}`});
 });
