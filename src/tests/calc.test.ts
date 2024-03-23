@@ -1,5 +1,5 @@
 // tests/calculator.spec.tx
-import { assert } from "chai";
+import assert from 'assert';
 
 const addition = (...args: number[]) => {
     return args.reduce((sum,value) => sum+value, 0);
