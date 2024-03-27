@@ -1,1 +1,1 @@
-export type Collections = "logger"
+export type Collections = "logger" | "registeredUsers"

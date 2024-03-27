@@ -1,9 +1,10 @@
-import { Collection, Db, MongoClient, ObjectId } from "mongodb"
+import { Collection, Db, InsertOneResult, MongoClient, ObjectId } from "mongodb"
 import * as dotenv from "dotenv";
 import Logger from "../logger/Logger";
 import { Collections } from "./const";
+import { DBClient, DBClientRecord } from "../base/const";
 
-export default class Mongo{
+export default class Mongo implements DBClient{
     private static __self:Mongo;
     private __client: MongoClient;
     private static Instance():Mongo{
@@ -12,9 +13,9 @@ export default class Mongo{
         }
         return Mongo.__self;
     }
-    public static insert(data: MongoRecord){
+    public static async insertRecord(data: MongoRecord): Promise<string|string[]>{
         try{
-             Mongo.Instance().insert(data)
+             return Mongo.Instance().insertRecord(data);
         } catch(error){
             throw new Error("data insertion failed");
         }
@@ -24,22 +25,26 @@ export default class Mongo{
         const connectionString = process.env.DB_CONN_STRING || "";
         this.__client = new MongoClient(connectionString);
     }
-    private async insert(data: MongoRecord){
+    public async insertRecord(data: MongoRecord): Promise<string|string[]>{
         dotenv.config();
         const connection = await this.__client.connect();
         const db: Db = this.__client.db(process.env.DB_NAME);
         const collection = db.collection(data.collection);
+
         if (Array.isArray( data.record)){
-            data.record.forEach(async one => await collection.insertOne(one));
+            data.record.forEach(async one => {
+                const oneRecord = await collection.insertOne(one);
+            });
         }
         else {
-            await collection.insertOne(data.record);
+            [await collection.insertOne(data.record)];
         }
         await connection.close();
+        return [];
     }
 }
 
-export interface MongoRecord {
+export interface MongoRecord extends DBClientRecord {
     collection: Collections;
     record: DBRecord | DBRecord [];
 }
