@@ -36,18 +36,11 @@ export default class Logger{
     }
     writeMessage(log: LogMessage, type: LoggingOptions){
         if(this.__enabledLoggingOptions.includes(type)) {
-            Mongo.insert({
-                collection: "logger",
-                record: {
-                  type,
-                  date: new Date().toUTCString(),
-                  log
-                }
-              });
+            if(this.__consoleLoggingEnabled){
+                console.log([type, new Date()] ,log.message);
+            }
         }
-        if(this.__consoleLoggingEnabled){
-            console.log([type, new Date()] ,log.message);
-        }
+       
     }
 }
 

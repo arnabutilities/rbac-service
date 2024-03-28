@@ -1,8 +1,7 @@
 import { Collection, Db, InsertOneResult, MongoClient, ObjectId } from "mongodb"
 import * as dotenv from "dotenv";
 import Logger from "../logger/Logger";
-import { Collections } from "./const";
-import { DBClient, DBClientRecord } from "../base/const";
+import { DBClient, DBClientRecord, DBRecord } from "../base/const";
 
 export default class Mongo implements DBClient{
     private static __self:Mongo;
@@ -20,6 +19,13 @@ export default class Mongo implements DBClient{
             throw new Error("data insertion failed");
         }
     }
+    public static async findRecords(data: MongoRecord): Promise<DBClientRecord |DBClientRecord []>{
+        try{
+             return Mongo.Instance().findRecords(data);
+        } catch(error){
+            throw new Error("data insertion failed");
+        }
+    }
     private constructor(){
         dotenv.config();
         const connectionString = process.env.DB_CONN_STRING || "";
@@ -29,7 +35,7 @@ export default class Mongo implements DBClient{
         dotenv.config();
         const connection = await this.__client.connect();
         const db: Db = this.__client.db(process.env.DB_NAME);
-        const collection = db.collection(data.collection);
+        const collection = db.collection(data.dataSource);
 
         if (Array.isArray( data.record)){
             data.record.forEach(async one => {
@@ -42,13 +48,26 @@ export default class Mongo implements DBClient{
         await connection.close();
         return [];
     }
+    public async findRecords(data: MongoRecord): Promise<DBClientRecord |DBClientRecord []>{
+        dotenv.config();
+        const connection = await this.__client.connect();
+        const db: Db = this.__client.db(process.env.DB_NAME);
+        const collection = db.collection(data.dataSource);
+        let results:DBRecord[] = [];
+
+        if (Array.isArray( data.record)){
+            data.record.forEach(async one => {
+                results.push( ...await collection.find(one).toArray() as DBRecord[]);
+            });
+        }
+        else {
+            results = [...await collection.find(data.record).toArray() as DBRecord[]];
+        }
+        await connection.close();
+        return {dataSource:data.dataSource, record: results};
+    }
 }
 
 export interface MongoRecord extends DBClientRecord {
-    collection: Collections;
-    record: DBRecord | DBRecord [];
-}
-export interface DBRecord {
-    __id?:string;
-    [field:string]: string | number | boolean | object | string[] | number[] | object[] | unknown;
+    
 }

@@ -2,7 +2,7 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import Logger from "./modules/logger/Logger";
-import Mongo from "./modules/mongodb/Mongo";
+import { UserEntity } from "./modules/base/entity/User";
 
 dotenv.config();
 
@@ -13,15 +13,25 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
-app.get("/mongo", (req: Request, res: Response) => {
-  Mongo.insert({
-    collection: "logger",
-    record: {
-      name: "Arnab",
-      date: new Date().getTime().toString()
-    }
+app.get("/createUser", async (req: Request, res: Response) => {
+  const user = new UserEntity("arnabxxx@gmail.com");
+  await user.createNewUser({
+    username: "arnabxxxxx@gmail.com",
+    address: [
+      "101, Estella Ornate, 10th Main Road, Shubh Enclave",
+      "Harlur Road, xxxx"
+    ],
+    contactNo: ["+9xxxxxxxxxxx"],
+    emails: ["arnabxxxx@gmail.com","arnablanc@gmail.com"],
+    socialIds: [
+      {
+        "id":"arnabxxxx@gmail.com",
+        "url":"https://www.linkedin.com",
+        "activity":"High"
+      }
+    ]
   })
-  res.send("Express + TypeScript Server");
+  res.send(`User present:${await user.validateUsername()}`);
 });
 
 app.listen(port, () => {

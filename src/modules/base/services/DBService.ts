@@ -1,5 +1,5 @@
 import Mongo from "../../mongodb/Mongo";
-import { AvailableDBService, DBClient, DBClientRecord } from "../const";
+import { AvailableDBService, DBClient, DBClientRecord, DBRecord } from "../const";
 import dotenv from "dotenv";
 import { ERRORS } from "../error/ErrorConst";
 
@@ -20,8 +20,8 @@ export class DBService{
     public async create(record:DBClientRecord):Promise<string|string[]>{
         return await this.__dbInstance.insertRecord(record);
     }
-    public async find(record:DBClientRecord):Promise<string|string[]>{
-        return await this.__dbInstance.find(record);
+    public async find(record:DBClientRecord):Promise<DBClientRecord|DBClientRecord[]>{
+        return await this.__dbInstance.findRecords(record);
     }
     private static async instance(service:AvailableDBService): Promise<DBService|undefined>{
         if(DBService.service.get(service) == null){
@@ -33,15 +33,16 @@ export class DBService{
         const defaultDBService:AvailableDBService = process.env.DEFAULT_DB_SERVICE as AvailableDBService || "Mongo";
         const dbInstance = await DBService.instance(defaultDBService);
         if(dbInstance != null){
-            dbInstance.create(record);
+            await dbInstance.create(record);
         }
         return;
     }
-    public static async findRecordById(recordId:string):Promise<string|undefined>{
+
+    public static async findRecord(record:DBClientRecord):Promise<DBRecord | DBRecord[] |undefined>{
         const defaultDBService:AvailableDBService = process.env.DEFAULT_DB_SERVICE as AvailableDBService || "Mongo";
         const dbInstance = await DBService.instance(defaultDBService);
         if(dbInstance != null){
-            dbInstance.find({__id:recordId});
+            await dbInstance.find(record);
         }
         return;
     }

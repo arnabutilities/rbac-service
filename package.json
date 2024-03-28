@@ -6,7 +6,8 @@
   "scripts": {
     "debug": "npx ts-node ./src/index.ts",
     "test": "ts-mocha ./tests/**/*.test.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node ./dist/"
   },
   "keywords": [],
   "author": "",

@@ -1,10 +1,11 @@
 import { AuthenticationService } from "../services/Authentication";
-import { User } from "../const";
+import { DBRecord, User, UserDataMin } from "../const";
 import Entity from "./Entity";
 import Logger from "../../logger/Logger";
 import { ERRORS } from "../error/ErrorConst";
-import Mongo, { DBRecord } from "../../mongodb/Mongo";
-import { DBService } from "../services/DBService";
+import Mongo from "../../mongodb/Mongo";
+
+import { UserDBService } from "../services/UserDBService";
 
 export class UserEntity extends Entity implements User {
     private _username = "";
@@ -16,25 +17,27 @@ export class UserEntity extends Entity implements User {
        return this._username;
     }
     set username(name:string) {
+        this._username = name;
+     }
+    async validateUsername():Promise<boolean> {
+        let valid = false;
         try{
-            if (DBService.checkUserByName(name)){
-                this._username = name;
+            if (await UserDBService.checkIfUserExistByName(this._username)){
+                valid = true;
             }
         }catch(error){
-            Logger.Error({message: `${name} is not registered user`, loggingItem: error as object}); // TODO: Need to introduce request uuid and stack trace
+            Logger.Error({message: `${this._username} is not registered user`, loggingItem: error as object}); // TODO: Need to introduce request uuid and stack trace
             throw new Error( ERRORS.USER_NOT_REGISTERED); // TODO: Need to introduce exception handling and stack trace
         }
+        return valid;
      }
 
-    public static createUser(user:User):UserEntity{
-        let reviewUser:User;
-        try {
-            reviewUser = new UserEntity(user.username);
-        } catch (e){
-            if(e === ERRORS.USER_NOT_REGISTERED){
-                Mongo.insert({collection: "registeredUsers", record: user as unknown as DBRecord}); // TODO: Mongo should not exposed, user record need to create separately
-            }
+    async createNewUser(userDetails:UserDataMin):Promise<boolean>{
+        const userExist = await UserDBService.checkIfUserExistByName(userDetails.username);
+        if(!userExist){
+            await UserDBService.createNewUser(userDetails);
+            return true;
         }
-        return new UserEntity(user.username);
+        return false;
     }
 }

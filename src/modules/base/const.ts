@@ -1,12 +1,18 @@
 export type EntityType = "User" | "Service" | "Application" | "AppData";
 export type SocialNetworkActivity = "Low" | "Medium" | "High";
 export type AvailableDBService = "Mongo" | "Postgres";
+export type Collections = "logger" | "registeredUsers";
 export interface DBClient{
     insertRecord(data:DBClientRecord):Promise<string | string[]>;
-    findRecords(data:DBClientRecord):void;
+    findRecords(data:DBClientRecord):Promise<DBClientRecord | DBClientRecord[]>;
+}
+export interface DBRecord {
+    __id?:string;
+    [field:string]: string | number | boolean | object | string[] | number[] | object[] | unknown;
 }
 export interface DBClientRecord{
-    
+    dataSource: Collections;
+    record: DBRecord | DBRecord [];
 }
 export interface Entity{
    
@@ -25,7 +31,7 @@ export interface User extends Entity{
     username: string;
     currentLocation?:Location;
 }
-export interface UserDataMin {
+export interface UserDataMin extends DBRecord {
     username:string;
     address: string[];
     contactNo: string[];
