@@ -57,11 +57,13 @@ export default class Mongo implements DBClient{
 
         if (Array.isArray( data.record)){
             data.record.forEach(async one => {
-                results.push( ...await collection.find(one).toArray() as DBRecord[]);
+                const fetchedData = await collection.find(one).toArray() as DBRecord[];
+                results.push( ...fetchedData);
             });
         }
         else {
-            results = [...await collection.find(data.record).toArray() as DBRecord[]];
+            const fetchedData = await collection.find(data.record).toArray() as DBRecord[];
+            results = [...fetchedData];
         }
         await connection.close();
         return {dataSource:data.dataSource, record: results};

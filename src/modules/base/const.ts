@@ -2,6 +2,12 @@ export type EntityType = "User" | "Service" | "Application" | "AppData";
 export type SocialNetworkActivity = "Low" | "Medium" | "High";
 export type AvailableDBService = "Mongo" | "Postgres";
 export type Collections = "logger" | "registeredUsers";
+
+export interface BarerData{
+    username: string;
+    hash: string;
+    loginTime?: string;
+}
 export interface DBClient{
     insertRecord(data:DBClientRecord):Promise<string | string[]>;
     findRecords(data:DBClientRecord):Promise<DBClientRecord | DBClientRecord[]>;
@@ -33,6 +39,7 @@ export interface User extends Entity{
 }
 export interface UserDataMin extends DBRecord {
     username:string;
+    passwordHash:string;
     address: string[];
     contactNo: string[];
     emails: string[];

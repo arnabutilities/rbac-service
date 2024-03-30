@@ -37,7 +37,7 @@ export default class Logger{
     writeMessage(log: LogMessage, type: LoggingOptions){
         if(this.__enabledLoggingOptions.includes(type)) {
             if(this.__consoleLoggingEnabled){
-                console.log([type, new Date()] ,log.message);
+                console.log([type, new Date()] ,log);
             }
         }
        

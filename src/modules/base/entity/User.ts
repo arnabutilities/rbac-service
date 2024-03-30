@@ -32,6 +32,37 @@ export class UserEntity extends Entity implements User {
         return valid;
      }
 
+     async getPasswordHash():Promise<string>{
+        const userDetails = await UserDBService.getUserDetailsByUsername(this._username);
+        if (userDetails != null ){
+            return userDetails.passwordHash;
+        }
+        return "";
+     }
+
+     async login(passwordText:string){
+        const userDetails = await UserDBService.getUserDetailsByUsername(this._username);
+        let passwordHash = "";
+        if (userDetails != null ){
+            passwordHash = userDetails.passwordHash;
+        }
+        const loginSuccess = await AuthenticationService.validatePassword(passwordText, passwordHash);
+        Logger.Debug({"message":"User:login", loggingItem:{
+            passwordHash,
+            passwordText,
+            loginSuccess
+        }})
+        if(loginSuccess && userDetails != null){
+            return AuthenticationService.createBarer({username:userDetails.username, hash: passwordHash});
+        }
+     }
+
+     async validateLogin(token:string):Promise<boolean>{
+        const username = this._username;
+        const passwordHash = await this.getPasswordHash();
+        return await AuthenticationService.validateBarer({username, hash: passwordHash}, token);
+     }
+
     async createNewUser(userDetails:UserDataMin):Promise<boolean>{
         const userExist = await UserDBService.checkIfUserExistByName(userDetails.username);
         if(!userExist){

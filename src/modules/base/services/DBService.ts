@@ -38,11 +38,11 @@ export class DBService{
         return;
     }
 
-    public static async findRecord(record:DBClientRecord):Promise<DBRecord | DBRecord[] |undefined>{
+    public static async findRecord(record:DBClientRecord):Promise<DBClientRecord | DBClientRecord[] |undefined>{
         const defaultDBService:AvailableDBService = process.env.DEFAULT_DB_SERVICE as AvailableDBService || "Mongo";
         const dbInstance = await DBService.instance(defaultDBService);
         if(dbInstance != null){
-            await dbInstance.find(record);
+           return await dbInstance.find(record);
         }
         return;
     }
