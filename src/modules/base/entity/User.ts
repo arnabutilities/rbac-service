@@ -1,11 +1,14 @@
 import { AuthenticationService } from "../services/Authentication";
-import { DBRecord, User, UserDataMin } from "../const";
+import { DBRecord, DBRecordInsertionStatus, User, UserDataMin } from "../const";
 import Entity from "./Entity";
 import Logger from "../../logger/Logger";
 import { ERRORS } from "../error/ErrorConst";
 import Mongo from "../../mongodb/Mongo";
 
 import { UserDBService } from "../services/UserDBService";
+import { RoleEntity } from "./Role";
+import moment from "moment";
+import { RolesDBService } from "../services/RolesDBService";
 
 export class UserEntity extends Entity implements User {
     private _username = "";
@@ -53,22 +56,31 @@ export class UserEntity extends Entity implements User {
             loginSuccess
         }})
         if(loginSuccess && userDetails != null){
-            return AuthenticationService.createBarer({username:userDetails.username, hash: passwordHash});
+            return AuthenticationService.createBearer({username:userDetails.username, hash: passwordHash});
         }
      }
 
      async validateLogin(token:string):Promise<boolean>{
         const username = this._username;
         const passwordHash = await this.getPasswordHash();
-        return await AuthenticationService.validateBarer({username, hash: passwordHash}, token);
+        return await AuthenticationService.verifyBearer(token);
      }
 
-    async createNewUser(userDetails:UserDataMin):Promise<boolean>{
+    public static async createNewUser(userDetails:UserDataMin):Promise<DBRecordInsertionStatus | DBRecordInsertionStatus[] | undefined>{
         const userExist = await UserDBService.checkIfUserExistByName(userDetails.username);
         if(!userExist){
-            await UserDBService.createNewUser(userDetails);
-            return true;
+            return await UserDBService.createNewUser(userDetails);
         }
-        return false;
+    }
+    async assignRoleToUser(role:string, roleAssignedTo:string): Promise<DBRecordInsertionStatus | DBRecordInsertionStatus[] | undefined>{
+        return RolesDBService.createUserRole({
+            createdBy:this.username,
+            creationTime: parseInt(moment().format()),
+            creatorRoleIds: (await this.getRoles())?.map(role => role?.roleId as string) || [],
+            enabled:true,
+            expirationTime:new Date(moment().add(1, 'year').format('YY-MM-DD-hh-mm-ss')).getTime(),
+            roleId: role,
+            username:roleAssignedTo
+        });
     }
 }

@@ -1,5 +1,5 @@
 import Logger from "../../logger/Logger";
-import { UserDataMin } from "../const";
+import { DBRecord, DBRecordInsertionStatus, UserDataMin } from "../const";
 import { DBService } from "./DBService";
 
 export class UserDBService {
@@ -28,7 +28,7 @@ export class UserDBService {
         }
         return false;
     }
-    public static async createNewUser(userDetails:UserDataMin):Promise<string| undefined>{
+    public static async createNewUser(userDetails:UserDataMin):Promise<DBRecordInsertionStatus|DBRecordInsertionStatus[]| undefined>{
         return await DBService.createRecord({
             dataSource: "registeredUsers",
             record: userDetails
