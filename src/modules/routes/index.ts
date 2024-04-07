@@ -5,14 +5,16 @@
  * Exports the configured router.
  */
 import express from "express";
-import { anonymousRoute } from "./anonymousRoute";
-import { userRoute } from "./userRoute";
-import { uiRoute } from "./uiRoute";
-import { roleRoute } from "./roleRoute";
+import { allRoutes } from "./const";
+import BaseRoute, { RouteFunctionality } from "./BaseRoute";
+
+
 
 export const routes = express.Router();
 
-routes.use(anonymousRoute);
-routes.use(userRoute);
-routes.use(uiRoute);
-routes.use(roleRoute);
+allRoutes.forEach((oneRoute) => {
+  (oneRoute as BaseRoute & RouteFunctionality)
+  .applyRoutePaths();
+  routes.use(oneRoute.getRouter());
+})
+

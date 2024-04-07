@@ -83,4 +83,8 @@ export class UserEntity extends Entity implements User {
             username:roleAssignedTo
         });
     }
+    async getUserDetails():Promise<DBRecord|undefined>{
+        const result = await UserDBService.getUserDetailsByUsername(this.username);
+        return result;
+    }
 }

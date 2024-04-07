@@ -18,7 +18,7 @@ export class ExpressService {
         const expressService = ExpressService.Initialize();
         let app = expressService.init();
         if(conf?.enableHandlebar){
-            Logger.Debug({message: "hbs enabled"})
+            Logger.Debug({message: "ExpressService::getApp - hbs enabled"})
             app.engine('handlebars', engine());
             app.set('view engine', 'handlebars');
             app.set('views', './src/views');

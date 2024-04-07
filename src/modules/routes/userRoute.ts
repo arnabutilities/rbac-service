@@ -1,104 +1,102 @@
-import { NextFunction, Request, Response, Router } from 'express';
-import { UserEntity } from '../base/entity/User';
-import { AuthenticationService } from '../base/services/Authentication';
-import { RESPONSE_ERROR, ResponseJSON } from './const';
-import Logger from '../logger/Logger';
-import { RoleEntity } from '../base/entity/Role';
-import moment from 'moment';
-import { Role } from '../base/const';
+import { UserDataMin } from "../base/const";
+import { UserEntity } from "../base/entity/User";
+import { AuthenticationService } from "../base/services/Authentication";
+import BaseRoute, { RouteFunctionality } from "./BaseRoute";
+import apiRoute from "./apiRoute";
+import { RequestData, ResponseData, RouteDetails, userRouteUris } from "./const";
 
-export const userRoute = Router();
+interface LoginData{
+  username:string;
+  password:string;
+}
+interface RegistrationData{
+  username:string;
+  password:string;
+  address: UserDataMin["address"];
+  contactNumber: UserDataMin["contactNumber"];
+  email: UserDataMin["email"];
+  socialIds: UserDataMin["socialIds"];
+}
 
-
-userRoute.post("/user/login", async (req: Request, res: Response) => {
-  const {username, password} = req.body;
-  if(username == null || password == null){
-    res.status(401).send("invalid input parameters");
+class UserRoute extends BaseRoute implements RouteFunctionality {
+  private static _singleton: UserRoute;
+  private constructor() {
+    super("users");
   }
-  const user = new UserEntity(username);
-  const bearerToken = await user.login(password);
-  res.send(bearerToken);
-});
-
-userRoute.get("/user/roles", async (req:Request, res:Response, next:NextFunction) => {
-    try{
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if(!token){
-            throw new Error("token not valid");
-        }
-        Logger.Debug({message: "Bearer", loggingItem: {token}})
-        const verified = await AuthenticationService.verifyBearer(token);
-        if(! verified){
-            throw new Error("user not valid: not verified");
-        }
-    } catch(e){
-        Logger.Debug({message: "Bearer failure", loggingItem: {e}})
-        const response:ResponseJSON = {
-            error:{
-                error: RESPONSE_ERROR.USER_NOT_AUTHORIZED,
-                message: "user not valid"
-            },
-            data: null
-        }
-        res.status(401).json(response);
+  public static instance(routeUris?: Map<string, RouteDetails>){
+    if(!UserRoute._singleton){
+      UserRoute._singleton = new UserRoute();
     }
-    next();
-}, async (req: Request, res: Response) => {
-    const response:ResponseJSON = {
-        error: null,
-        data: {
-            message: "valid user"
-        }
+    if(routeUris){
+      UserRoute._singleton.setRouteDetails(routeUris);
     }
-    res.status(200).json(response);
-})
+    return UserRoute._singleton;
+  }
+  public applyRoutePaths() {
+    this.setGetAPI(this.getRouteDetails().get("GET_All_APIS")?.url as string, async (data:RequestData) => {
+      const routeData:string[] = [];
+      
+      const resp:ResponseData = {
+        error:null,
+        data:routeData,
+        success:true
+      };
+      return resp;
+    },{escapeAllMiddlewares: this.getRouteDetails().get("GET_All_APIS")?.escapeAllMiddlewares || false});
 
-// app.get("/user", async (req: Request, res: Response) => {
-//   const user = new UserEntity("arnab.jis.it@gmail.com");
-//   const bearerToken = await user.login("123@AAditri");
-//   setTimeout(async () => {
-//     const isValidBearer = await user.validateLogin(bearerToken as string);
-//     res.send(isValidBearer);
-//   }, 2000);
-// });
+    this.setGetAPI(this.getRouteDetails().get("GET_All_ROLES")?.url as string,  async (data:RequestData) => {
+      const user = new UserEntity(data.username);
+      const record = await user.getRoles();
+      const resp:ResponseData = {
+        error:null,
+        data: record,
+        success:true
+      };
+      return resp;
+    },{escapeAllMiddlewares: this.getRouteDetails().get("GET_All_ROLES")?.escapeAllMiddlewares || false});
 
-userRoute.get("/user/createDefaultUser", async (req: Request, res: Response) => {
-  const newUser = await UserEntity.createNewUser({
-    username: "arnab.jis.it@gmail.com",
-    address: [
-      "101, Estella Ornate, 10th Main Road, Shubh Enclave",
-      "Harlur Road, xxxx"
-    ],
-    passwordHash: await AuthenticationService.createPasswordHash("123@AAditri"),
-    contactNo: ["+9886968680"],
-    emails: ["arnab.jis.it@gmail.com","arnablanc@gmail.com"],
-    socialIds: [
-      {
-        "id":"arnab.jis.it@gmail.com",
-        "url":"https://www.linkedin.com/in/arnab-chaudhuri-bangalore-frontend-ui/",
-        "activity":"High"
-      }
-    ]
-  });
-  Logger.Debug({message: "new user created",loggingItem: {
-    newUser
-  }})
-  const role = await RoleEntity.createRole({
-    createdBy:"INSTALLATION",
-    creationTime: new Date().getTime(),
-    creatorRoleId: "INSTALLATION",
-    enabled:true,
-    expirationTime: new Date(moment().add(1, 'year').format('YY-MM-DD-hh-mm-ss')).getTime(),
-    parentRoleId: "NONE",
-    roleName: "DEFAULT_ADMIN_USER"
-  });
-  Logger.Debug({message: "new role created",loggingItem: {
-    role
-  }})
-  const user = new UserEntity("arnab.jis.it@gmail.com");
-  const roleAssignment = await user.assignRoleToUser("DEFAULT_ADMIN_USER", "arnab.jis.it@gmail.com");
-  Logger.Debug({message: "role assigned to user",loggingItem: {
-    roleAssignment
-  }})
-  res.status(200).json(newUser);
-});
+    this.setGetAPI(this.getRouteDetails().get("GET_USER_DETAILS")?.url as string, async (data:RequestData) => {
+      const user = new UserEntity(data.username);
+      const record = await user.getUserDetails();
+      const resp:ResponseData = {
+        error:null,
+        data: record,
+        success:true
+      };
+      return resp;
+    },{escapeAllMiddlewares: this.getRouteDetails().get("GET_USER_DETAILS")?.escapeAllMiddlewares || false});
+
+    this.setPostAPI(this.getRouteDetails().get("SET_USER_LOGIN")?.url as string, async (data:RequestData) => {
+      const postData = JSON.parse(data.body) as LoginData;
+      const user = new UserEntity(postData.username);
+      const barer = await user.login(postData.password);
+      const resp:ResponseData = {
+        error:null,
+        data: {barer},
+        success:true
+      };
+      return resp;
+    },{escapeAllMiddlewares: this.getRouteDetails().get("SET_USER_LOGIN")?.escapeAllMiddlewares || false});
+    
+    this.setPostAPI(this.getRouteDetails().get("REGISTER_USER_DETAILS")?.url as string, async (data:RequestData) => {
+      const postData = JSON.parse(data.body) as RegistrationData;
+      const newUserData = {
+                            username:postData.username,
+                            address:postData.address,
+                            contactNo:postData.contactNumber,
+                            socialIds:postData.socialIds,
+                            emails:postData.email,
+                            passwordHash: (await AuthenticationService.createPasswordHash(postData.password)).toString()} as UserDataMin;
+      const result = await UserEntity.createNewUser(newUserData);
+      const resp:ResponseData = {
+        error:null,
+        data: {result},
+        success:true
+      };
+      return resp;
+    },{escapeAllMiddlewares: this.getRouteDetails().get("REGISTER_USER_DETAILS")?.escapeAllMiddlewares || false});
+  }
+}
+
+
+export default UserRoute;

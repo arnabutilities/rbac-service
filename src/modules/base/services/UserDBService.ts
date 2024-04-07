@@ -11,7 +11,7 @@ export class UserDBService {
                 username: name
             }
         });
-        Logger.Debug({message: "Fetching user details",loggingItem: {
+        Logger.Debug({message: "UserDBService::checkIfUserExistByName -> Fetching user details",loggingItem: {
             location: "UserDBService::checkIfUserExistByName",
             data: result
         }});

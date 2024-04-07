@@ -3,6 +3,7 @@ import { DBClientRecord, DBRecord, DBRecordInsertionStatus, Role } from "../cons
 import { RolesDBService } from "../services/RolesDBService";
 import Entity from "./Entity";
 import { UserEntity } from "./User";
+import Logger from "../../logger/Logger";
 
 export class RoleEntity extends Entity{
     private __roleName = "";

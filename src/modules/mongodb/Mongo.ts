@@ -21,6 +21,7 @@ export default class Mongo implements DBClient{
     }
     public static async findRecords(data: MongoRecord): Promise<DBClientRecord>{
         try{
+            Logger.Debug({message: "Mongo::findRecords - Finding records"});
              return Mongo.Instance().findRecords(data);
         } catch(error){
             throw new Error("data insertion failed");
@@ -55,10 +56,11 @@ export default class Mongo implements DBClient{
     public async findRecords(data: MongoRecord): Promise<DBClientRecord>{
         dotenv.config();
         const connection = await this.__client.connect();
+        Logger.Debug({message: "Mongo::findRecords - 1"});
         const db: Db = this.__client.db(process.env.DB_NAME);
         const collection = db.collection(data.dataSource);
         let results:DBRecord[] = [];
-
+        Logger.Debug({message: "Mongo::findRecords -2",loggingItem:{data: JSON.stringify(data)}});
         if (Array.isArray( data.record)){
             data.record.forEach(async one => {
                 const fetchedData = await collection.find(one).toArray() as DBRecord[];

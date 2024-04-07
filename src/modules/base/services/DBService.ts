@@ -2,6 +2,7 @@ import Mongo from "../../mongodb/Mongo";
 import { AvailableDBService, DBClient, DBClientRecord, DBRecord, DBRecordInsertionStatus } from "../const";
 import dotenv from "dotenv";
 import { ERRORS } from "../error/ErrorConst";
+import Logger from "../../logger/Logger";
 
 export class DBService{
     private __dbInstance:DBClient;
@@ -41,6 +42,7 @@ export class DBService{
     public static async findRecord(record:DBClientRecord):Promise<DBClientRecord |undefined>{
         const defaultDBService:AvailableDBService = process.env.DEFAULT_DB_SERVICE as AvailableDBService || "Mongo";
         const dbInstance = await DBService.instance(defaultDBService);
+        Logger.Debug({message: "DBService::findRecords - 0"});
         if(dbInstance != null){
            return await dbInstance.find(record);
         }
