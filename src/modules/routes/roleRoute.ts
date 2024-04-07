@@ -26,7 +26,7 @@ class RoleRoute extends BaseRoute implements RouteFunctionality {
     return RoleRoute._singleton;
   }
   public applyRoutePaths() {
-    this.setGetAPI(this.getRouteDetails().get("GET_All_ROLES")?.url as string, async (data:RequestData) => {
+    this.setGetAPI("GET_All_ROLES", async (data:RequestData) => {
       const roles = await RoleEntity.getAllRoles();
       const resp:ResponseData = {
         error:null,
@@ -34,7 +34,7 @@ class RoleRoute extends BaseRoute implements RouteFunctionality {
         success:true
       };
       return resp;
-    },{escapeAllMiddlewares: this.getRouteDetails().get("GET_All_ROLES")?.escapeAllMiddlewares || false});
+    });
   }
 }
 

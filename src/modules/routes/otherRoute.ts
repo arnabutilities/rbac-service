@@ -18,7 +18,7 @@ class OtherRoute extends BaseRoute implements RouteFunctionality {
     return OtherRoute._singleton;
   }
   public applyRoutePaths() {
-    this.setPostAPI(this.getRouteDetails().get("GET_SOCIAL_DATA")?.url as string, async (data:RequestData) => {
+    this.setPostAPI("GET_SOCIAL_DATA", async (data:RequestData) => {
       const user = new UserEntity(data.username);
       const record = await user.getUserDetails() as UserDataMin;
       const userSocialData = record?.socialIds;
@@ -28,7 +28,7 @@ class OtherRoute extends BaseRoute implements RouteFunctionality {
         success:true
       };
       return resp;
-    },{escapeAllMiddlewares: this.getRouteDetails().get("GET_SOCIAL_DATA")?.escapeAllMiddlewares || false});
+    });
     
   }
 }

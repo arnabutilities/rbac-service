@@ -14,7 +14,6 @@ import Logger from "../logger/Logger";
 export const routes = express.Router();
 
 allRoutes.forEach((oneRoute) => {
-  console.log({message: "Routes::index.ts: applying all route paths - "});
   (oneRoute as BaseRoute & RouteFunctionality)
   .applyRoutePaths();
   routes.use(oneRoute.getRouter());

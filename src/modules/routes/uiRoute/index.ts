@@ -17,16 +17,13 @@ class WebUserInterfaceRoute extends BaseRoute implements RouteFunctionality {
     return WebUserInterfaceRoute._singleton;
   }
   public applyRoutePaths() {
-    this.setGetRender(this.getRouteDetails().get("LOGIN_UI")?.url as string, async (data:RequestData) => {
+    this.setGetRender("LOGIN_UI", async (data:RequestData) => {
       const resp:ResponseData = {
         error:null,
         data:[],
         success:true
       };
       return resp;
-    },{
-      escapeAllMiddlewares: this.getRouteDetails().get("LOGIN_UI")?.escapeAllMiddlewares || false,
-      templateFileName: 'login.handlebars'
     });
   }
 }

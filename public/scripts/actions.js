@@ -39,8 +39,8 @@ const userRouteAccessTest = async (e) => {
     const resp = await fetch("/roles/getAll",{
         headers: {
           "Content-Type": "application/json",
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer ${bearer}`
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Bearer ${bearer}`
         },
       });
       console.log(resp);

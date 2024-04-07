@@ -33,7 +33,7 @@ class UserRoute extends BaseRoute implements RouteFunctionality {
     return UserRoute._singleton;
   }
   public applyRoutePaths() {
-    this.setGetAPI(this.getRouteDetails().get("GET_All_APIS")?.url as string, async (data:RequestData) => {
+    this.setGetAPI("GET_All_APIS", async (data:RequestData) => {
       const routeData:string[] = [];
       
       const resp:ResponseData = {
@@ -42,9 +42,9 @@ class UserRoute extends BaseRoute implements RouteFunctionality {
         success:true
       };
       return resp;
-    },{escapeAllMiddlewares: this.getRouteDetails().get("GET_All_APIS")?.escapeAllMiddlewares || false});
+    });
 
-    this.setGetAPI(this.getRouteDetails().get("GET_All_ROLES")?.url as string,  async (data:RequestData) => {
+    this.setGetAPI("GET_All_ROLES",  async (data:RequestData) => {
       const user = new UserEntity(data.username);
       const record = await user.getRoles();
       const resp:ResponseData = {
@@ -53,9 +53,9 @@ class UserRoute extends BaseRoute implements RouteFunctionality {
         success:true
       };
       return resp;
-    },{escapeAllMiddlewares: this.getRouteDetails().get("GET_All_ROLES")?.escapeAllMiddlewares || false});
+    });
 
-    this.setGetAPI(this.getRouteDetails().get("GET_USER_DETAILS")?.url as string, async (data:RequestData) => {
+    this.setGetAPI("GET_USER_DETAILS", async (data:RequestData) => {
       const user = new UserEntity(data.username);
       const record = await user.getUserDetails();
       const resp:ResponseData = {
@@ -64,9 +64,9 @@ class UserRoute extends BaseRoute implements RouteFunctionality {
         success:true
       };
       return resp;
-    },{escapeAllMiddlewares: this.getRouteDetails().get("GET_USER_DETAILS")?.escapeAllMiddlewares || false});
+    });
 
-    this.setPostAPI(this.getRouteDetails().get("SET_USER_LOGIN")?.url as string, async (data:RequestData) => {
+    this.setPostAPI("SET_USER_LOGIN", async (data:RequestData) => {
       const postData = data.body as LoginData;
       const user = new UserEntity(postData.username);
       const barer = await user.login(postData.password);
@@ -76,9 +76,9 @@ class UserRoute extends BaseRoute implements RouteFunctionality {
         success:true
       };
       return resp;
-    },{escapeAllMiddlewares: this.getRouteDetails().get("SET_USER_LOGIN")?.escapeAllMiddlewares || false});
+    });
     
-    this.setPostAPI(this.getRouteDetails().get("REGISTER_USER_DETAILS")?.url as string, async (data:RequestData) => {
+    this.setPostAPI("REGISTER_USER_DETAILS", async (data:RequestData) => {
       const postData = JSON.parse(data.body) as RegistrationData;
       const newUserData = {
                             username:postData.username,
@@ -94,7 +94,7 @@ class UserRoute extends BaseRoute implements RouteFunctionality {
         success:true
       };
       return resp;
-    },{escapeAllMiddlewares: this.getRouteDetails().get("REGISTER_USER_DETAILS")?.escapeAllMiddlewares || false});
+    });
   }
 }
 

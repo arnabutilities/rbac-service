@@ -18,7 +18,7 @@ class ApiRoute extends BaseRoute implements RouteFunctionality {
     return ApiRoute._singleton;
   }
   public applyRoutePaths() {
-    this.setGetAPI(this.getRouteDetails().get("GET_All_APIS")?.url as string, async (data:RequestData) => {
+    this.setGetAPI("GET_All_APIS", async (data:RequestData) => {
       const routeData:RouteDetails[] = [];
       Array.from(userRouteUris.values()).forEach(route => {
         routeData.push(route);
@@ -36,7 +36,7 @@ class ApiRoute extends BaseRoute implements RouteFunctionality {
         success:true
       };
       return resp;
-    },{escapeAllMiddlewares: this.getRouteDetails().get("GET_All_APIS")?.escapeAllMiddlewares || false});
+    });
     
   }
 }

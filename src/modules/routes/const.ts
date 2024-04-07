@@ -29,6 +29,7 @@ export interface RouteDetails{
     escapeAllMiddlewares?: boolean;
     summary?: string;
     description?: string;
+    templateFileName?: string;
   }
   export interface RequestData {
     username: string;
@@ -68,7 +69,8 @@ export const userInterfaceRouteUris: Map<string,RouteDetails> = new Map(
     ["LOGIN_UI", {
       method: "GET",
       url: "/login",
-      escapeAllMiddlewares: true
+      escapeAllMiddlewares: true,
+      templateFileName: 'login.handlebars'
     }]
   ]
 );

@@ -67,9 +67,11 @@ export default abstract class BaseRoute {
     }
       return false;
   }
-  setGetAPI(path: string, ApiFunctionality: (reqData:RequestData)=>Promise<ResponseData>, options?: AdditionalRequestOptions ){
+  setGetAPI(key: string, ApiFunctionality: (reqData:RequestData)=>Promise<ResponseData>){
+    const path = this.getRouteUrl(key);
+    const options = {escapeAllMiddlewares:this.shouldEscapeMiddleware(key)};
     this.router.get(
-      this.basePath + path,
+      path,
       async (req: Request, res: Response, next: NextFunction) => {
         if (options?.escapeAllMiddlewares) {
           Logger.Debug({ message: "Escaping all middlewares" });
@@ -85,7 +87,7 @@ export default abstract class BaseRoute {
             return res.status(401).json(err);
           }
           if (
-            !(await this.authorizationMiddleware(this.basePath + path, bearer))
+            !(await this.authorizationMiddleware(path, bearer))
           ) {
             const err: ResponseError = {
               errorType: ERRORS.USER_NOT_AUTHORIZED_TO_ACCESS,
@@ -129,11 +131,13 @@ export default abstract class BaseRoute {
         
       }
     );
-    this.registeredRoutes.set(this.basePath + path,{method:"GET", url: this.basePath + path});
+    this.registeredRoutes.set(path,{method:"GET", url: path});
   }
-  setGetRender(path: string, ApiFunctionality: (reqData:RequestData)=>Promise<ResponseData>, options?: AdditionalRequestOptions ){
+  setGetRender(key: string, ApiFunctionality: (reqData:RequestData)=>Promise<ResponseData> ){
+    const path = this.getRouteUrl(key);
+    const options = {escapeAllMiddlewares:this.shouldEscapeMiddleware(key),templateFileName:""};
     this.router.get(
-      this.basePath + path,
+      path,
       async (req: Request, res: Response, next: NextFunction) => {
         if (options?.escapeAllMiddlewares) {
           Logger.Debug({ message: "Escaping all middlewares" });
@@ -149,7 +153,7 @@ export default abstract class BaseRoute {
             return res.status(401).json(err);
           }
           if (
-            !(await this.authorizationMiddleware(this.basePath + path, bearer))
+            !(await this.authorizationMiddleware(path, bearer))
           ) {
             const err: ResponseError = {
               errorType: ERRORS.USER_NOT_AUTHORIZED_TO_ACCESS,
@@ -188,16 +192,18 @@ export default abstract class BaseRoute {
             query: req.query,
             headers: req.headers,
           });
-          res.status(200).render(options?.templateFileName || "login.handlebars", resp);
+          res.status(200).render(this.getTemplateFile(key), resp);
         }
        
         
       }
     );
-    this.registeredRoutes.set(this.basePath + path,{method:"GET", url: this.basePath + path});
+    this.registeredRoutes.set(path,{method:"GET", url: path});
   }
-  setPostAPI(path: string, ApiFunctionality: (reqData:RequestData)=>Promise<ResponseData>, options?: AdditionalRequestOptions){
-    this.router.post(this.basePath + path, async (req: Request, res: Response, next:NextFunction) => {
+  setPostAPI(key: string, ApiFunctionality: (reqData:RequestData)=>Promise<ResponseData>){
+    const path = this.getRouteUrl(key);
+    const options = {escapeAllMiddlewares:this.shouldEscapeMiddleware(key)};
+    this.router.post(path, async (req: Request, res: Response, next:NextFunction) => {
       if(options?.escapeAllMiddlewares){
         next();
       } else {
@@ -209,7 +215,7 @@ export default abstract class BaseRoute {
           };
           return res.status(401).json(err);
         }
-        if(!await this.authorizationMiddleware(this.basePath + path, bearer)){
+        if(!await this.authorizationMiddleware(path, bearer)){
           const err:ResponseError = {
             errorType: ERRORS.USER_NOT_AUTHORIZED_TO_ACCESS,
             message: "user don't have permission to access this api"
@@ -239,7 +245,7 @@ export default abstract class BaseRoute {
       }
       
     });
-    this.registeredRoutes.set(this.basePath + path,{method:"POST", url: this.basePath + path});;
+    this.registeredRoutes.set(path,{method:"POST", url: path});;
   }
   getRouter() {
     return this.router;
@@ -252,6 +258,15 @@ export default abstract class BaseRoute {
   }
   getRouteDetails():Map<string,RouteDetails>{
     return this.routeDetails;
+  }
+  getRouteUrl(key:string):string{
+    return this.basePath + this.routeDetails.get(key)?.url;
+  }
+  shouldEscapeMiddleware(key:string):boolean{
+    return this.routeDetails.get(key)?.escapeAllMiddlewares || false;
+  }
+  getTemplateFile(key:string):string{
+    return this.routeDetails.get(key)?.templateFileName || "login.handlebars";
   }
   getBasePath(){
     return this.basePath;
