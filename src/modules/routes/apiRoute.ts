@@ -1,3 +1,4 @@
+import Logger from "../logger/Logger";
 import BaseRoute, { RouteFunctionality } from "./BaseRoute";
 import { RequestData, ResponseData, RouteDetails, allRoutes, apiRouteUris, roleRouteUris, userRouteUris } from "./const";
 import UserRoute from "./userRoute";

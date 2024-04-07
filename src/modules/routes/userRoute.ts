@@ -67,12 +67,12 @@ class UserRoute extends BaseRoute implements RouteFunctionality {
     },{escapeAllMiddlewares: this.getRouteDetails().get("GET_USER_DETAILS")?.escapeAllMiddlewares || false});
 
     this.setPostAPI(this.getRouteDetails().get("SET_USER_LOGIN")?.url as string, async (data:RequestData) => {
-      const postData = JSON.parse(data.body) as LoginData;
+      const postData = data.body as LoginData;
       const user = new UserEntity(postData.username);
       const barer = await user.login(postData.password);
       const resp:ResponseData = {
         error:null,
-        data: {barer},
+        data: {barer:barer,data},
         success:true
       };
       return resp;

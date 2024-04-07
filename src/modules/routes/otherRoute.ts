@@ -1,12 +1,12 @@
 import { UserDataMin } from "../base/const";
 import { UserEntity } from "../base/entity/User";
 import BaseRoute, { RouteFunctionality } from "./BaseRoute";
-import { RequestData, ResponseData, RouteDetails, allRoutes, apiRouteUris, roleRouteUris, userRouteUris } from "./const";
+import { RequestData, ResponseData, RouteDetails } from "./const";
 
 class OtherRoute extends BaseRoute implements RouteFunctionality {
   private static _singleton: OtherRoute;
   private constructor() {
-    super("apis");
+    super("others");
   }
   public static instance(routeUris?: Map<string, RouteDetails>){
     if(!OtherRoute._singleton){

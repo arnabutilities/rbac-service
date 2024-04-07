@@ -97,7 +97,6 @@ export default abstract class BaseRoute {
         }
       },
       async (req: Request, res: Response) => {
-        Logger.Debug({message: "BaseRoute::setGetAPI -> Request received"});
         if(options?.escapeAllMiddlewares){
             const username = "anonymous";
             const resp = await ApiFunctionality({
@@ -132,34 +131,113 @@ export default abstract class BaseRoute {
     );
     this.registeredRoutes.set(this.basePath + path,{method:"GET", url: this.basePath + path});
   }
+  setGetRender(path: string, ApiFunctionality: (reqData:RequestData)=>Promise<ResponseData>, options?: AdditionalRequestOptions ){
+    this.router.get(
+      this.basePath + path,
+      async (req: Request, res: Response, next: NextFunction) => {
+        if (options?.escapeAllMiddlewares) {
+          Logger.Debug({ message: "Escaping all middlewares" });
+          next();
+        } else {
+          const bearer =
+            req.header("Authorization")?.replace("Bearer ", "") || "";
+          if (!(await this.authenticationMiddleware(bearer))) {
+            const err: ResponseError = {
+              errorType: ERRORS.USER_NOT_REGISTERED,
+              message: "Please login to get the access",
+            };
+            return res.status(401).json(err);
+          }
+          if (
+            !(await this.authorizationMiddleware(this.basePath + path, bearer))
+          ) {
+            const err: ResponseError = {
+              errorType: ERRORS.USER_NOT_AUTHORIZED_TO_ACCESS,
+              message: "user don't have permission to access this api",
+            };
+            return res.status(401).json(err);
+          }
+          next();
+        }
+      },
+      async (req: Request, res: Response) => {
+        Logger.Debug({message: "BaseRoute::setGetAPI -> Request received"});
+        if(options?.escapeAllMiddlewares){
+            const username = "anonymous";
+            const resp = await ApiFunctionality({
+              username,
+              params: req.params,
+              body: req.body,
+              query: req.query,
+              headers: req.headers,
+            });
+            res.status(200).render(options?.templateFileName || "login.handlebars", resp);
+        } else {
+            const bearer =
+            req.header("Authorization")?.replace("Bearer ", "") || null;
+            const { username } =
+            bearer != null
+              ? ((await AuthenticationService.retrieveBearerData(
+                  bearer
+                )) as BearerData)
+              : { username: "anonymous" };
+          const resp = await ApiFunctionality({
+            username,
+            params: req.params,
+            body: req.body,
+            query: req.query,
+            headers: req.headers,
+          });
+          res.status(200).render(options?.templateFileName || "login.handlebars", resp);
+        }
+       
+        
+      }
+    );
+    this.registeredRoutes.set(this.basePath + path,{method:"GET", url: this.basePath + path});
+  }
   setPostAPI(path: string, ApiFunctionality: (reqData:RequestData)=>Promise<ResponseData>, options?: AdditionalRequestOptions){
     this.router.post(this.basePath + path, async (req: Request, res: Response, next:NextFunction) => {
       if(options?.escapeAllMiddlewares){
         next();
+      } else {
+        const bearer = req.header("Authorization")?.replace("Bearer ", "") || "";
+        if(!await this.authenticationMiddleware(bearer)){
+          const err:ResponseError = {
+            errorType: ERRORS.USER_NOT_REGISTERED,
+            message: "Please login to get the access"
+          };
+          return res.status(401).json(err);
+        }
+        if(!await this.authorizationMiddleware(this.basePath + path, bearer)){
+          const err:ResponseError = {
+            errorType: ERRORS.USER_NOT_AUTHORIZED_TO_ACCESS,
+            message: "user don't have permission to access this api"
+          };
+          return res.status(401).json(err);
+        }
+        next();
       }
-      const bearer = req.header("Authorization")?.replace("Bearer ", "") || "";
-      if(!await this.authenticationMiddleware(bearer)){
-        const err:ResponseError = {
-          errorType: ERRORS.USER_NOT_REGISTERED,
-          message: "Please login to get the access"
-        };
-        return res.status(401).json(err);
-      }
-      if(!await this.authorizationMiddleware(this.basePath + path, bearer)){
-        const err:ResponseError = {
-          errorType: ERRORS.USER_NOT_AUTHORIZED_TO_ACCESS,
-          message: "user don't have permission to access this api"
-        };
-        return res.status(401).json(err);
-      }
-      next();
     },async (req:Request, res:Response) => {
-      const bearer = req.header("Authorization")?.replace("Bearer ", "") || null;
-      const { username } = bearer != null ? (await AuthenticationService.retrieveBearerData(
-        bearer
-      )) as BearerData : {username: "anonymous"};
-      const resp = await ApiFunctionality({username, params: req.params, body: req.body, query: req.query, headers: req.headers});
-      res.status(200).json(resp);
+      if(options?.escapeAllMiddlewares){
+        const username = "anonymous";
+        const resp = await ApiFunctionality({
+          username,
+          params: req.params,
+          body: req.body,
+          query: req.query,
+          headers: req.headers,
+        });
+        res.status(200).json(resp);
+      } else {
+        const bearer = req.header("Authorization")?.replace("Bearer ", "") || null;
+        const { username } = bearer != null ? (await AuthenticationService.retrieveBearerData(
+          bearer
+        )) as BearerData : {username: "anonymous"};
+        const resp = await ApiFunctionality({username, params: req.params, body: req.body, query: req.query, headers: req.headers});
+        res.status(200).json(resp);
+      }
+      
     });
     this.registeredRoutes.set(this.basePath + path,{method:"POST", url: this.basePath + path});;
   }
@@ -174,5 +252,8 @@ export default abstract class BaseRoute {
   }
   getRouteDetails():Map<string,RouteDetails>{
     return this.routeDetails;
+  }
+  getBasePath(){
+    return this.basePath;
   }
 }

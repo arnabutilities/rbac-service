@@ -8,7 +8,8 @@ import ApiRoute from "./apiRoute";
 import RoleRoute from "./roleRoute";
 import UserRoute from "./userRoute";
 import BaseRoute from "./BaseRoute";
-import OtherRoute from "./apiRoute";
+import WebUserInterfaceRoute from "./uiRoute";
+import OtherRoute from "./otherRoute";
 
 export interface ResponseJSON{
     error:ResponseError | null;
@@ -45,6 +46,7 @@ export interface RouteDetails{
   
   export interface AdditionalRequestOptions{
     escapeAllMiddlewares?: boolean;
+    templateFileName?: string;
   }
 
 export enum RESPONSE_ERROR{
@@ -61,14 +63,24 @@ export const roleRouteUris: Map<string,RouteDetails> = new Map(
   ]
 );
 
-export const apiRouteUris: Map<string,RouteDetails> = new Map(
+export const userInterfaceRouteUris: Map<string,RouteDetails> = new Map(
     [
-    ["GET_All_APIS", {
+    ["LOGIN_UI", {
       method: "GET",
-      url: "/getAll",
+      url: "/login",
       escapeAllMiddlewares: true
     }]
   ]
+);
+
+export const apiRouteUris: Map<string,RouteDetails> = new Map(
+  [
+  ["GET_All_APIS", {
+    method: "GET",
+    url: "/getAll",
+    escapeAllMiddlewares: true
+  }]
+]
 );
 
 export const userRouteUris: Map<string,RouteDetails> = new Map(
@@ -82,11 +94,12 @@ export const userRouteUris: Map<string,RouteDetails> = new Map(
         url: "/getUserDetails"
       }],
       ["SET_USER_LOGIN", {
-        method: "GET",
-        url: "/login"
+        method: "POST",
+        url: "/login",
+        escapeAllMiddlewares: true
       }],
       ["REGISTER_USER_DETAILS", {
-        method: "GET",
+        method: "POST",
         url: "/registerNewUser",
         escapeAllMiddlewares: true
       }],
@@ -96,13 +109,13 @@ export const otherRouteUris: Map<string,RouteDetails> = new Map(
   [
   ["GET_SOCIAL_DATA", {
     method: "POST",
-    url: "/getSocialData",
-    escapeAllMiddlewares: true
+    url: "/getSocialData"
   }]
 ]
 );
 
 export const allRoutes:BaseRoute[] = [
+    WebUserInterfaceRoute.instance(userInterfaceRouteUris),
     ApiRoute.instance(apiRouteUris),
     RoleRoute.instance(roleRouteUris),
     UserRoute.instance(userRouteUris),
