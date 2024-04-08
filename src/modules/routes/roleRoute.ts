@@ -7,9 +7,8 @@
  */
 
 import { RoleEntity } from "../base/entity/Role";
-import Logger from "../logger/Logger";
 import BaseRoute, { RouteFunctionality } from "./BaseRoute";
-import { RequestData, ResponseData, RouteDetails, roleRouteUris } from "./const";
+import { RequestData, ResponseData, RouteDetails } from "./const";
 
 class RoleRoute extends BaseRoute implements RouteFunctionality {
   private static _singleton: RoleRoute;

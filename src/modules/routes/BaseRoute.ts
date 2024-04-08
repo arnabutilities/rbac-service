@@ -6,6 +6,7 @@ import { UserEntity } from "../base/entity/User";
 import { RouteEntity } from "../base/entity/Route";
 import { ERRORS } from "../base/error/ErrorConst";
 import { AdditionalRequestOptions, RequestData, ResponseData, ResponseError, RouteDetails } from "./const";
+import { randomUUID } from "crypto";
 
 export interface RouteFunctionality{
   applyRoutePaths():void;
@@ -73,6 +74,7 @@ export default abstract class BaseRoute {
     this.router.get(
       path,
       async (req: Request, res: Response, next: NextFunction) => {
+        const a = randomUUID();
         if (options?.escapeAllMiddlewares) {
           Logger.Debug({ message: "Escaping all middlewares" });
           next();
@@ -251,7 +253,7 @@ export default abstract class BaseRoute {
     return this.router;
   }
   getRoutePaths():string[]{
-    return {...Array.from(this.registeredRoutes.keys())};
+    return {...Array.from(this.registeredRoutes.keys()).map(path => this.basePath+path)};
   }
   setRouteDetails(paths:Map<string,RouteDetails>){
     this.routeDetails = paths;
@@ -266,7 +268,7 @@ export default abstract class BaseRoute {
     return this.routeDetails.get(key)?.escapeAllMiddlewares || false;
   }
   getTemplateFile(key:string):string{
-    return this.routeDetails.get(key)?.templateFileName || "login.handlebars";
+    return this.routeDetails.get(key)?.defaultHbsTemplate || "login.handlebars";
   }
   getBasePath(){
     return this.basePath;

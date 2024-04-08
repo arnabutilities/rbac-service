@@ -1,3 +1,4 @@
+import BaseRoute from "./BaseRoute";
 import ApiRoute from "./apiRoute";
 import { RoleBasedRoutes, RouteDetails } from "./const";
 import OtherRoute from "./otherRoute";

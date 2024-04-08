@@ -33,7 +33,7 @@ export interface RouteDetails {
 }
 export interface RoleBasedRoutes extends RouteDetails{
   roleOptions?: RoleOptions[];
-  roleSelectionStrategy?: ROLE_SELECTION_STRATEGY.BEST_SCORED_ROLE_FOR_THE_USER;
+  roleSelectionStrategy?: ROLE_SELECTION_STRATEGY;
 
 }
 export interface RoleOptions {
