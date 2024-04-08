@@ -27,14 +27,17 @@ class RoleRoute extends BaseRoute implements RouteFunctionality {
   }
   public applyRoutePaths() {
     this.setGetAPI("GET_All_ROLES", async (data:RequestData) => {
-      const roles = await RoleEntity.getAllRoles();
-      const resp:ResponseData = {
-        error:null,
-        data:roles,
-        success:true
-      };
-      return resp;
+      return await this.getAllRole(data);
     });
+  }
+  private async getAllRole(data: RequestData): Promise<ResponseData> {
+    const roles = await RoleEntity.getAllRoles();
+    const resp:ResponseData = {
+      error:null,
+      data:roles,
+      success:true
+    };
+    return resp;
   }
 }
 

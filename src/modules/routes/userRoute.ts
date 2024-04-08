@@ -2,8 +2,7 @@ import { UserDataMin } from "../base/const";
 import { UserEntity } from "../base/entity/User";
 import { AuthenticationService } from "../base/services/Authentication";
 import BaseRoute, { RouteFunctionality } from "./BaseRoute";
-import apiRoute from "./apiRoute";
-import { RequestData, ResponseData, RouteDetails, userRouteUris } from "./const";
+import { RequestData, ResponseData, RouteDetails } from "./const";
 
 interface LoginData{
   username:string;
