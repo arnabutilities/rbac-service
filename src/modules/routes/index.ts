@@ -5,9 +5,9 @@
  * Exports the configured router.
  */
 import express from "express";
-import { allRoutes } from "./const";
+import { allRoutes } from "./RouteConfigutration";
 import BaseRoute, { RouteFunctionality } from "./BaseRoute";
-import Logger from "../logger/Logger";
+
 
 
 

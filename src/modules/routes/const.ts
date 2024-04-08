@@ -29,7 +29,16 @@ export interface RouteDetails {
   escapeAllMiddlewares?: boolean;
   summary?: string;
   description?: string;
-  templateFileName?: string;
+  defaultHbsTemplate?: string;
+}
+export interface RoleBasedRoutes extends RouteDetails{
+  roleOptions?: RoleOptions[];
+  roleSelectionStrategy?: ROLE_SELECTION_STRATEGY.BEST_SCORED_ROLE_FOR_THE_USER;
+
+}
+export interface RoleOptions {
+  role:string;
+  hbsTemplate?:string;
 }
 export interface RequestData {
   username: string;
@@ -54,86 +63,7 @@ export enum RESPONSE_ERROR {
   USER_NOT_AUTHORIZED,
 }
 
-export const roleRouteUris: Map<string, RouteDetails> = new Map([
-  [
-    "GET_All_ROLES",
-    {
-      method: "GET",
-      url: "/getAll",
-      escapeAllMiddlewares: true,
-    },
-  ],
-]);
-
-export const userInterfaceRouteUris: Map<string, RouteDetails> = new Map([
-  [
-    "LOGIN_UI",
-    {
-      method: "GET",
-      url: "/login",
-      escapeAllMiddlewares: true,
-      templateFileName: "login.handlebars",
-    },
-  ],
-]);
-
-export const apiRouteUris: Map<string, RouteDetails> = new Map([
-  [
-    "GET_All_APIS",
-    {
-      method: "GET",
-      url: "/getAll",
-      escapeAllMiddlewares: true,
-    },
-  ],
-]);
-
-export const userRouteUris: Map<string, RouteDetails> = new Map([
-  [
-    "GET_All_ROLES",
-    {
-      method: "GET",
-      url: "/getRoles",
-    },
-  ],
-  [
-    "GET_USER_DETAILS",
-    {
-      method: "GET",
-      url: "/getUserDetails",
-    },
-  ],
-  [
-    "SET_USER_LOGIN",
-    {
-      method: "POST",
-      url: "/login",
-      escapeAllMiddlewares: true,
-    },
-  ],
-  [
-    "REGISTER_USER_DETAILS",
-    {
-      method: "POST",
-      url: "/registerNewUser",
-      escapeAllMiddlewares: true,
-    },
-  ],
-]);
-export const otherRouteUris: Map<string, RouteDetails> = new Map([
-  [
-    "GET_SOCIAL_DATA",
-    {
-      method: "POST",
-      url: "/getSocialData",
-    },
-  ],
-]);
-
-export const allRoutes: BaseRoute[] = [
-  WebUserInterfaceRoute.instance(userInterfaceRouteUris),
-  ApiRoute.instance(apiRouteUris),
-  RoleRoute.instance(roleRouteUris),
-  UserRoute.instance(userRouteUris),
-  OtherRoute.instance(otherRouteUris),
-];
+export enum ROLE_SELECTION_STRATEGY {
+  BEST_SCORED_ROLE_FOR_THE_USER,
+  LEAST_SCORED_ROLE_FOR_THE_USER
+}
