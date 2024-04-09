@@ -1,4 +1,3 @@
-import { Request, Response, Router } from 'express';
 import BaseRoute, { RouteFunctionality } from '../BaseRoute';
 import { RequestData, ResponseData, RouteDetails } from '../const';
 import Logger from '../../logger/Logger';

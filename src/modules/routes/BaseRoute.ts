@@ -15,17 +15,19 @@ import {
 } from "./const";
 import { randomUUID } from "crypto";
 import { RouteConfigurationManager } from "./RouteConfigurationManager";
+import { testRouter } from "./RouteConfiguration";
 
 export interface RouteFunctionality {
     applyRoutePaths(): void;
 }
 export default abstract class BaseRoute {
-    private router: Router = Router();
+    private router: Router;
     private registeredRoutes: Map<string, RouteDetails> = new Map();
     private routeConfigurationManager:RouteConfigurationManager;
 
     constructor(basePath: string, routeUris:Map<string, RouteDetails>) {
-      this.routeConfigurationManager = new RouteConfigurationManager(routeUris,basePath);
+        this.router = Router();
+        this.routeConfigurationManager = new RouteConfigurationManager(routeUris,basePath);
     }
 
     private async authenticationMiddleware(bearer: string): Promise<boolean | undefined> {
@@ -52,9 +54,7 @@ export default abstract class BaseRoute {
         this.router.get(
             path,
             async (req: Request, res: Response, next: NextFunction) => {
-                Logger.Debug({ message: "Middleware check" });
                 if (options?.escapeAllMiddlewares) {
-                    Logger.Debug({ message: "Escaping all middlewares" });
                     next();
                 } else {
                     const bearer = req.header("Authorization")?.replace("Bearer ", "") || "";
@@ -113,9 +113,7 @@ export default abstract class BaseRoute {
         this.router.get(
             path,
             async (req: Request, res: Response, next: NextFunction) => {
-              Logger.Debug({message:"LOGIN_UI->inside",loggingItem:{ options}});
                 if (options?.escapeAllMiddlewares) {
-                    Logger.Debug({ message: "Escaping all middlewares" });
                     next();
                 } else {
                     const bearer = req.header("Authorization")?.replace("Bearer ", "") || "";
@@ -130,7 +128,6 @@ export default abstract class BaseRoute {
                 }
             },
             async (req: Request, res: Response) => {
-                Logger.Debug({ message: "BaseRoute::setGetAPI -> Request received" });
                 if (options?.escapeAllMiddlewares) {
                     const username = "anonymous";
                     const resp = await ApiFunctionality({
@@ -175,7 +172,6 @@ export default abstract class BaseRoute {
                 }
             }
         );
-        Logger.Debug({message:"LOGIN_UI->wrapper",loggingItem:{ options}});
         this.registeredRoutes.set(path, { method: "GET", url: path });
     }
     public setPostAPI(key: string, ApiFunctionality: (reqData: RequestData) => Promise<ResponseData>) {
@@ -184,7 +180,6 @@ export default abstract class BaseRoute {
         this.router.post(
             path,
             async (req: Request, res: Response, next: NextFunction) => {
-                Logger.Debug({ message: "Middleware check" });
                 if (options?.escapeAllMiddlewares) {
                     next();
                 } else {

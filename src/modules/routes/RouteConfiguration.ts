@@ -1,3 +1,4 @@
+import { Request, Response, Router } from "express";
 import BaseRoute from "./BaseRoute";
 import ApiRoute from "./apiRoute";
 import { AUTHORIZATION_SELECTION_STRATEGY, ROUTER_AUTHORIZATIONS, RouteAuthorizations, RouteDetails } from "./const";
@@ -100,6 +101,8 @@ export const roleRouteUris: Map<string, RouteDetails> = new Map([
       },
     ],
   ]);
+  export const testRouter = Router();
+  testRouter.get('/test', (req:Request, res:Response) => {res.status(200).json({success:"true"});})
   
   export const allRoutes: BaseRoute[] = [
     WebUserInterfaceRoute.instance(userInterfaceRouteUris),

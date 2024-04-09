@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 import { engine } from "express-handlebars";
 import Logger from "../../logger/Logger";
 import { RouteManager } from "../../routes";
-import { allRoutes } from "../../routes/RouteConfigutration";
+import { allRoutes } from "../../routes/RouteConfiguration";
 
 export class ExpressService {
     private static __expressService:ExpressService;
@@ -18,10 +18,9 @@ export class ExpressService {
     }
     public static async getApp ( conf?:{enableHandlebar:boolean}):Promise<Express> {
         await RouteManager.Initialize(allRoutes);
-        Logger.Debug({message:"debugging route"});
         const expressService = ExpressService.Initialize();
         let app = expressService.init();
-        const routes = await RouteManager.getRoute();
+        const routes = RouteManager.getRoute();
         if(conf?.enableHandlebar){
             Logger.Debug({message: "ExpressService::getApp - hbs enabled"})
             app.engine('handlebars', engine());
@@ -29,6 +28,7 @@ export class ExpressService {
             app.set('views', './src/views');
         }
         if(routes != null){
+            Logger.Debug({message:"debugging route",loggingItem:{routes}});
             app.use('/', routes);
         }
         return app;        

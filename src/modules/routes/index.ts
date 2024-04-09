@@ -17,7 +17,7 @@ export class RouteManager{
       Logger.Debug({"message":"checking each route",loggingItem:{router: oneRoute.getRoutePaths()}});
     });
   }
-  public static async getRoute():Promise<Router>{
+  public static getRoute():Router{
     return RouteManager.routes;
   }
 }

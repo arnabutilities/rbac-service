@@ -1,3 +1,4 @@
+import Logger from "../logger/Logger";
 import {
     AUTHORIZATION_SELECTION_STRATEGY,
     AuthorizationOption,
@@ -9,13 +10,14 @@ import {
 export class RouteConfigurationManager {
     constructor(
         private routeConfiguration: Map<string, RouteDetails>,
-        private basePath: string = ""
+        private basePath: string = "/"
     ) {}
     public getRouteDetails(): Map<string, RouteDetails> {
         return this.routeConfiguration;
     }
     public getRouteUrl(key: string): string {
-        return this.basePath + this.routeConfiguration.get(key)?.url;
+        Logger.Debug({message:"RouteConfigurationManager::getRouteUrl",loggingItem:{key: this.basePath + this.routeConfiguration.get(key)?.url}})
+        return "/"+this.basePath + this.routeConfiguration.get(key)?.url;
     }
     public shouldEscapeMiddleware(key: string): boolean {
         return this.routeConfiguration.get(key)?.escapeAllMiddlewares || false;
