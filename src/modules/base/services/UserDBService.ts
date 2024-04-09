@@ -1,8 +1,21 @@
 import Logger from "../../logger/Logger";
-import { DBRecord, DBRecordInsertionStatus, UserDataMin } from "../const";
+import { ROUTER_AUTHORIZATIONS } from "../../routes/const";
+import { DBRecord, DBRecordInsertionStatus, UserDataMin, UserRouteRelation } from "../const";
 import { DBService } from "./DBService";
 
 export class UserDBService {
+
+    public static async getUserAuthorizationByRole(username:string, roleKey:string):Promise<ROUTER_AUTHORIZATIONS[]>{
+        const result = await DBService.findRecord({
+            dataSource: "usersRouteRelations",
+            record: {
+                username, roleKey
+            }
+        });
+        return (result?.record as DBRecord[])?.map( (oneRecord:DBRecord) => {
+            return (oneRecord as UserRouteRelation).relation;
+        })
+    }
 
     public static async checkIfUserExistByName(name:string):Promise<boolean> {
         const result = await DBService.findRecord({

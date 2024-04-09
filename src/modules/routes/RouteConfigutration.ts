@@ -1,6 +1,6 @@
 import BaseRoute from "./BaseRoute";
 import ApiRoute from "./apiRoute";
-import { RoleBasedRoutes, RouteDetails } from "./const";
+import { AUTHORIZATION_SELECTION_STRATEGY, ROUTER_AUTHORIZATIONS, RouteAuthorizations, RouteDetails } from "./const";
 import OtherRoute from "./otherRoute";
 import RoleRoute from "./roleRoute";
 import WebUserInterfaceRoute from "./uiRoute";
@@ -12,19 +12,38 @@ export const roleRouteUris: Map<string, RouteDetails> = new Map([
       {
         method: "GET",
         url: "/getAll",
-        escapeAllMiddlewares: true,
+        escapeAllMiddlewares: true
       },
     ],
   ]);
   
-  export const userInterfaceRouteUris: Map<string, RoleBasedRoutes> = new Map([
+  export const userInterfaceRouteUris: Map<string, RouteAuthorizations> = new Map([
     [
       "LOGIN_UI",
       {
         method: "GET",
         url: "/login",
         escapeAllMiddlewares: true,
-        templateFileName: "login.handlebars",
+        defaultHbsTemplate: "login.handlebars",
+        authorizationSelectionStrategy: AUTHORIZATION_SELECTION_STRATEGY.BEST_SCORE_FOR_THE_USER,
+        authorizationOptions: [
+          {
+            authorization: ROUTER_AUTHORIZATIONS.ANONYMOUS_ACCESS,
+            score: 99,
+            default: true,
+            hbsTemplate: "user-login-with-username-password.handlebars"
+          },
+          {
+            authorization: ROUTER_AUTHORIZATIONS.READ_ACCESS,
+            score: 9,
+            hbsTemplate:"login-help.handlebars"
+          },
+          {
+            authorization: ROUTER_AUTHORIZATIONS.NO_ACCESS,
+            score: 5,
+            hbsTemplate:"no-access.handlebars"
+          },
+        ]
       },
     ],
   ]);

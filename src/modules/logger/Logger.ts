@@ -1,4 +1,4 @@
-import Mongo from "../mongodb/Mongo";
+import dotenv from "dotenv";
 
 /**
  * Logging utility
@@ -29,6 +29,7 @@ export default class Logger{
         Logger.Instance().writeMessage(log, "PERFORMANCE");
     }
     private constructor(){
+        dotenv.config();
         const consoleLogging = process.env.CONSOLE_LOGGING as ConsoleLogging;
         const loggingTypes:LoggingOptions[] = process.env.LOGGING_TYPE?.split(";") as LoggingOptions[] || [];
         this.__enabledLoggingOptions =  loggingTypes;

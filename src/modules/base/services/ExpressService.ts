@@ -2,6 +2,8 @@ import express, { Express, NextFunction, Request, Response, Router } from "expre
 import bodyParser from "body-parser";
 import { engine } from "express-handlebars";
 import Logger from "../../logger/Logger";
+import { RouteManager } from "../../routes";
+import { allRoutes } from "../../routes/RouteConfigutration";
 
 export class ExpressService {
     private static __expressService:ExpressService;
@@ -14,9 +16,12 @@ export class ExpressService {
         }
         return ExpressService.__expressService;
     }
-    public static getApp (routes?:Router, conf?:{enableHandlebar:boolean}):Express {
+    public static async getApp ( conf?:{enableHandlebar:boolean}):Promise<Express> {
+        await RouteManager.Initialize(allRoutes);
+        Logger.Debug({message:"debugging route"});
         const expressService = ExpressService.Initialize();
         let app = expressService.init();
+        const routes = await RouteManager.getRoute();
         if(conf?.enableHandlebar){
             Logger.Debug({message: "ExpressService::getApp - hbs enabled"})
             app.engine('handlebars', engine());
