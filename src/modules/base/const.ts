@@ -1,7 +1,9 @@
+import { ROUTER_AUTHORIZATIONS } from "../routes/const";
+
 export type EntityType = "User" | "Service" | "Application" | "AppData" | "Role" | "Route";
 export type SocialNetworkActivity = "Low" | "Medium" | "High";
 export type AvailableDBService = "Mongo" | "Postgres";
-export type Collections = "logger" | "registeredUsers" | "userRoles" | "roleDetails" | "routeRoles";
+export type Collections = "logger" | "registeredUsers" | "userRoles" | "roleDetails" | "routeRoles" | "usersRouteRelations";
 
 export interface BearerData{
     username: string;
@@ -40,6 +42,13 @@ export interface SocialId{
 export interface User extends Entity{
     username: string;
     currentLocation?:Location;
+}
+
+export interface UserRouteRelation extends DBRecord {
+    username: string;
+    routeKey: string;
+    routeName: string;
+    relation: ROUTER_AUTHORIZATIONS
 }
 export interface UserDataMin extends DBRecord {
     username:string;

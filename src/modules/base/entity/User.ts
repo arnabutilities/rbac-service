@@ -9,6 +9,7 @@ import { UserDBService } from "../services/UserDBService";
 import { RoleEntity } from "./Role";
 import moment from "moment";
 import { RolesDBService } from "../services/RolesDBService";
+import { ROUTER_AUTHORIZATIONS } from "../../routes/const";
 
 export class UserEntity extends Entity implements User {
     private _username = "";
@@ -85,6 +86,10 @@ export class UserEntity extends Entity implements User {
     }
     async getUserDetails():Promise<DBRecord|undefined>{
         const result = await UserDBService.getUserDetailsByUsername(this.username);
+        return result;
+    }
+    async getRouteAuthorizations(routeKey:string): Promise<ROUTER_AUTHORIZATIONS[]> {
+        const result = await UserDBService.getUserAuthorizationByRole(this.username, routeKey);
         return result;
     }
 }

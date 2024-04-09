@@ -7,24 +7,23 @@
  */
 
 import { RoleEntity } from "../base/entity/Role";
+import Logger from "../logger/Logger";
 import BaseRoute, { RouteFunctionality } from "./BaseRoute";
 import { RequestData, ResponseData, RouteDetails } from "./const";
 
 class RoleRoute extends BaseRoute implements RouteFunctionality {
   private static _singleton: RoleRoute;
-  private constructor() {
-    super("roles");
+  private constructor(routeUris: Map<string, RouteDetails>) {
+    super("roles",routeUris);
   }
-  public static instance(routeUris?: Map<string, RouteDetails>){
+  public static instance(routeUris: Map<string, RouteDetails>){
     if(!RoleRoute._singleton){
-      RoleRoute._singleton = new RoleRoute();
-    }
-    if(routeUris){
-      RoleRoute._singleton.setRouteDetails(routeUris);
+      RoleRoute._singleton = new RoleRoute(routeUris);
     }
     return RoleRoute._singleton;
   }
   public applyRoutePaths() {
+    Logger.Debug({message: "RoleRoute::applyRoutePaths"});
     this.setGetAPI("GET_All_ROLES", async (data:RequestData) => {
       return await this.getAllRole(data);
     });

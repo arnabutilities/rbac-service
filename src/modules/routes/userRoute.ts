@@ -1,6 +1,7 @@
 import { UserDataMin } from "../base/const";
 import { UserEntity } from "../base/entity/User";
 import { AuthenticationService } from "../base/services/Authentication";
+import Logger from "../logger/Logger";
 import BaseRoute, { RouteFunctionality } from "./BaseRoute";
 import { RequestData, ResponseData, RouteDetails } from "./const";
 
@@ -19,30 +20,17 @@ interface RegistrationData{
 
 class UserRoute extends BaseRoute implements RouteFunctionality {
   private static _singleton: UserRoute;
-  private constructor() {
-    super("users");
+  private constructor(routeUris: Map<string, RouteDetails>) {
+    super("users", routeUris);
   }
-  public static instance(routeUris?: Map<string, RouteDetails>){
+  public static instance(routeUris: Map<string, RouteDetails>){
     if(!UserRoute._singleton){
-      UserRoute._singleton = new UserRoute();
-    }
-    if(routeUris){
-      UserRoute._singleton.setRouteDetails(routeUris);
+      UserRoute._singleton = new UserRoute(routeUris);
     }
     return UserRoute._singleton;
   }
   public applyRoutePaths() {
-    this.setGetAPI("GET_All_APIS", async (data:RequestData) => {
-      const routeData:string[] = [];
-      
-      const resp:ResponseData = {
-        error:null,
-        data:routeData,
-        success:true
-      };
-      return resp;
-    });
-
+    Logger.Debug({message: "UserRoute::applyRoutePaths"});
     this.setGetAPI("GET_All_ROLES",  async (data:RequestData) => {
       const user = new UserEntity(data.username);
       const record = await user.getRoles();

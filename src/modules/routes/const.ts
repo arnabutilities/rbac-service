@@ -31,14 +31,16 @@ export interface RouteDetails {
   description?: string;
   defaultHbsTemplate?: string;
 }
-export interface RoleBasedRoutes extends RouteDetails{
-  roleOptions?: RoleOptions[];
-  roleSelectionStrategy?: ROLE_SELECTION_STRATEGY;
+export interface RouteAuthorizations extends RouteDetails{
+  authorizationOptions: AuthorizationOption[];
+  authorizationSelectionStrategy: AUTHORIZATION_SELECTION_STRATEGY;
 
 }
-export interface RoleOptions {
-  role:string;
+export interface AuthorizationOption {
+  authorization:ROUTER_AUTHORIZATIONS;
+  score:number;
   hbsTemplate?:string;
+  default?: true
 }
 export interface RequestData {
   username: string;
@@ -63,7 +65,13 @@ export enum RESPONSE_ERROR {
   USER_NOT_AUTHORIZED,
 }
 
-export enum ROLE_SELECTION_STRATEGY {
-  BEST_SCORED_ROLE_FOR_THE_USER,
-  LEAST_SCORED_ROLE_FOR_THE_USER
+export enum AUTHORIZATION_SELECTION_STRATEGY {
+  BEST_SCORE_FOR_THE_USER,
+  LEAST_SCORE_FOR_THE_USER
+}
+export enum ROUTER_AUTHORIZATIONS{
+  NO_ACCESS,
+  ANONYMOUS_ACCESS,
+  READ_ACCESS,
+  CRUD_ACCESS, // access for create read update delete
 }
